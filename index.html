@@ -15,12 +15,12 @@
       </div>
 
       <h2 class="login-title">Sign in to your account</h2>
-      <p class="login-subtitle">Enter your username and password to continue</p>
+      <p class="login-subtitle">Affiliators: enter username. Admin: enter full email.</p>
 
       <div class="auth-error" id="loginError"></div>
 
       <div class="field">
-        <label>Username</label>
+        <label>Username or Email</label>
         <input type="text" id="usernameInput" placeholder="e.g. johndoe"
                autocomplete="username" autocapitalize="none" spellcheck="false">
       </div>
@@ -47,27 +47,28 @@
   <script src="js/config.js"></script>
   <script src="js/utils.js"></script>
   <script>
-    // Helper: convert username to fake internal email
-    function usernameToEmail(username) {
-      return username.toLowerCase().trim() + '@eqstudio.internal';
+    // If input contains @, use as-is (admin full email)
+    // If no @, append @eqstudio.internal (affiliator username)
+    function resolveEmail(input) {
+      const val = input.trim().toLowerCase();
+      return val.includes('@') ? val : val + '@eqstudio.internal';
     }
 
     // Check if already logged in
     window.addEventListener('load', async () => {
-      const sb = getSupabase();
-      const { data: { user } } = await sb.auth.getUser();
+      const { data: { user } } = await getSupabase().auth.getUser();
       if (user) redirectUser(user);
     });
 
     async function handleSignIn() {
-      const username = document.getElementById('usernameInput').value.trim();
+      const input    = document.getElementById('usernameInput').value.trim();
       const password = document.getElementById('passwordInput').value;
       const btn      = document.getElementById('signInBtn');
       const errEl    = document.getElementById('loginError');
 
       errEl.classList.remove('visible');
 
-      if (!username || !password) {
+      if (!input || !password) {
         errEl.textContent = 'Please enter your username and password.';
         errEl.classList.add('visible');
         return;
@@ -76,12 +77,9 @@
       setButtonLoading(btn, true);
 
       try {
-        const sb    = getSupabase();
-        const email = usernameToEmail(username);
-
-        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        const email = resolveEmail(input);
+        const { data, error } = await getSupabase().auth.signInWithPassword({ email, password });
         if (error) throw error;
-
         redirectUser(data.user);
       } catch (err) {
         errEl.textContent = 'Incorrect username or password.';
@@ -99,7 +97,6 @@
       }
     }
 
-    // Enter key to submit
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') handleSignIn();
     });
