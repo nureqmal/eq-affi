@@ -244,8 +244,12 @@
         </button>
       </div>
       <div class="field"><label>Full Name</label><input type="text" id="addName" placeholder="Jane Doe"></div>
-      <div class="field"><label>Email Address</label><input type="email" id="addEmail" placeholder="jane@example.com"></div>
-      <div class="field"><label>Password (for portal login)</label><input type="password" id="addPassword" placeholder="Min. 8 characters"></div>
+      <div class="field">
+        <label>Username <span style="color:var(--text-tertiary);font-weight:400;">(for login)</span></label>
+        <input type="text" id="addUsername" placeholder="e.g. janedoe" autocapitalize="none" spellcheck="false">
+        <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:5px;">Lowercase, no spaces. They will use this to sign in.</div>
+      </div>
+      <div class="field"><label>Password</label><input type="password" id="addPassword" placeholder="Min. 8 characters"></div>
       <div class="field"><label>Promo Code</label><input type="text" id="addPromoCode" placeholder="JANE20" style="text-transform:uppercase;"></div>
       <div class="field"><label>Contact (phone / social)</label><input type="text" id="addContact" placeholder="@janedoe / +60123456789"></div>
       <div class="modal-footer">
@@ -397,7 +401,7 @@
         <tr>
           <td data-label="Name">
             <div style="font-weight:500;">${a.name}</div>
-            <div class="td-secondary">${a.email}</div>
+            <div class="td-secondary" style="font-family:monospace;font-size:0.78rem;">@${a.username || a.email.replace('@eqstudio.internal','')}</div>
             ${a.contact ? `<div class="td-secondary" style="font-size:0.75rem;">${a.contact}</div>` : ''}
           </td>
           <td data-label="Promo Code"><span class="td-mono">${a.promo_code}</span></td>
@@ -433,7 +437,7 @@
       }
       tbody.innerHTML = list.map(a => `
         <tr>
-          <td data-label="Name"><div style="font-weight:500;">${a.name}</div><div class="td-secondary">${a.email}</div></td>
+          <td data-label="Name"><div style="font-weight:500;">${a.name}</div><div class="td-secondary" style="font-family:monospace;font-size:0.78rem;">@${a.username || a.email.replace('@eqstudio.internal','')}</div></td>
           <td data-label="Promo Code"><span class="td-mono">${a.promo_code}</span></td>
           <td data-label="Uses">${a.code_uses ?? 0}</td>
           <td data-label="Commission" class="text-gold">${formatCurrency(a.total_commission)}</td>
@@ -446,44 +450,53 @@
       const q      = document.getElementById('affiliatorSearch').value.toLowerCase();
       const status = document.getElementById('statusFilter').value;
       const list   = affiliatorsData.filter(a => {
-        const matchQ = !q || a.name.toLowerCase().includes(q) || a.promo_code.toLowerCase().includes(q) || a.email.toLowerCase().includes(q);
+        const matchQ = !q || a.name.toLowerCase().includes(q) || a.promo_code.toLowerCase().includes(q) || (a.username||'').toLowerCase().includes(q);
         const matchS = !status || a.status === status;
         return matchQ && matchS;
       });
       renderAffiliators(list);
     }
 
-    async function addAffiliator() {
-      const name    = document.getElementById('addName').value.trim();
-      const email   = document.getElementById('addEmail').value.trim();
-      const password = document.getElementById('addPassword').value;
-      const promo   = document.getElementById('addPromoCode').value.trim().toUpperCase();
-      const contact = document.getElementById('addContact').value.trim();
-      const btn     = document.getElementById('addAffiliatorBtn');
+    // Convert username to fake internal email
+    function usernameToEmail(username) {
+      return username.toLowerCase().trim() + '@eqstudio.internal';
+    }
 
-      if (!name || !email || !password || !promo) {
+    async function addAffiliator() {
+      const name     = document.getElementById('addName').value.trim();
+      const username = document.getElementById('addUsername').value.trim().toLowerCase().replace(/\s+/g, '');
+      const password = document.getElementById('addPassword').value;
+      const promo    = document.getElementById('addPromoCode').value.trim().toUpperCase();
+      const contact  = document.getElementById('addContact').value.trim();
+      const btn      = document.getElementById('addAffiliatorBtn');
+
+      if (!name || !username || !password || !promo) {
         toast('Please fill all required fields', 'error'); return;
+      }
+      if (!/^[a-z0-9_]+$/.test(username)) {
+        toast('Username: lowercase letters, numbers, underscores only', 'error'); return;
       }
       if (password.length < 8) { toast('Password must be at least 8 characters', 'error'); return; }
 
       setButtonLoading(btn, true);
-      const sb = getSupabase();
+      const sb    = getSupabase();
+      const email = usernameToEmail(username);
 
       try {
-        // Create auth user via admin (requires service role — use signUp here; admin can reset password)
+        // Sign up with fake internal email — no confirmation email sent
         const { data: authData, error: authErr } = await sb.auth.signUp({ email, password });
         if (authErr) throw authErr;
 
         const userId = authData.user?.id;
 
         const { error: dbErr } = await sb.from('affiliators').insert({
-          user_id: userId, name, email, promo_code: promo, contact, status: 'active'
+          user_id: userId, name, email, username, promo_code: promo, contact, status: 'active'
         });
         if (dbErr) throw dbErr;
 
-        toast('Affiliator added successfully!', 'success');
+        toast(`Affiliator added! Username: ${username}`, 'success', 5000);
         closeModal('addAffiliatorModal');
-        ['addName','addEmail','addPassword','addPromoCode','addContact'].forEach(id => document.getElementById(id).value = '');
+        ['addName','addUsername','addPassword','addPromoCode','addContact'].forEach(id => document.getElementById(id).value = '');
         await loadAffiliators();
         updateOverviewStats();
       } catch (err) {
