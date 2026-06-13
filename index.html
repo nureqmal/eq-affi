@@ -5,73 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EQStudio — Sign In</title>
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    .login-divider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 24px 0;
-    }
-    .login-divider::before, .login-divider::after {
-      content: ''; flex: 1; height: 1px; background: var(--border);
-    }
-    .login-divider span {
-      font-size: 0.72rem;
-      color: var(--text-tertiary);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .portal-links {
-      display: flex;
-      gap: 8px;
-      margin-top: 20px;
-    }
-    .portal-link {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 14px 10px;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      transition: border-color var(--transition), background var(--transition);
-      text-decoration: none;
-    }
-    .portal-link:hover {
-      border-color: var(--border-strong);
-      background: var(--bg-hover);
-    }
-    .portal-link.selected {
-      border-color: var(--gold);
-      background: var(--gold-dim);
-    }
-    .portal-link .pl-icon {
-      width: 32px; height: 32px;
-      border-radius: var(--radius-sm);
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 8px;
-      font-size: 1.1rem;
-    }
-    .portal-link .pl-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-align: center;
-    }
-    .portal-link.selected .pl-label { color: var(--gold); }
-    .forget-link {
-      text-align: right;
-      margin-top: -12px;
-      margin-bottom: 20px;
-    }
-    .forget-link a {
-      font-size: 0.78rem;
-      color: var(--text-tertiary);
-    }
-    .forget-link a:hover { color: var(--gold); }
-  </style>
 </head>
 <body>
   <div class="login-page">
@@ -82,62 +15,60 @@
       </div>
 
       <h2 class="login-title">Sign in to your account</h2>
-      <p class="login-subtitle">Enter your credentials to continue</p>
+      <p class="login-subtitle">Enter your username and password to continue</p>
 
       <div class="auth-error" id="loginError"></div>
 
       <div class="field">
-        <label>Email address</label>
-        <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
+        <label>Username</label>
+        <input type="text" id="usernameInput" placeholder="e.g. johndoe"
+               autocomplete="username" autocapitalize="none" spellcheck="false">
       </div>
 
       <div class="field">
         <label>Password</label>
-        <input type="password" id="passwordInput" placeholder="••••••••" autocomplete="current-password">
+        <input type="password" id="passwordInput" placeholder="••••••••"
+               autocomplete="current-password">
       </div>
 
-      <div class="forget-link">
-        <a href="#" id="forgotPasswordLink">Forgot password?</a>
-      </div>
-
-      <button class="btn btn-primary" id="signInBtn" onclick="handleSignIn()">
+      <button class="btn btn-primary" id="signInBtn" onclick="handleSignIn()" style="margin-top:8px;">
         Sign in
       </button>
 
-      <div class="login-divider"><span>or</span></div>
-
-      <p style="font-size:0.78rem; color:var(--text-tertiary); text-align:center; margin-bottom:10px;">
-        First time? Contact your admin to get your login credentials.
+      <p style="font-size:0.78rem;color:var(--text-tertiary);text-align:center;margin-top:20px;">
+        Don't have an account? Contact your admin.
       </p>
     </div>
   </div>
 
   <div class="toast-container"></div>
 
-  <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/utils.js"></script>
   <script>
+    // Helper: convert username to fake internal email
+    function usernameToEmail(username) {
+      return username.toLowerCase().trim() + '@eqstudio.internal';
+    }
+
     // Check if already logged in
     window.addEventListener('load', async () => {
       const sb = getSupabase();
       const { data: { user } } = await sb.auth.getUser();
-      if (user) {
-        redirectUser(user);
-      }
+      if (user) redirectUser(user);
     });
 
     async function handleSignIn() {
-      const email    = document.getElementById('emailInput').value.trim();
+      const username = document.getElementById('usernameInput').value.trim();
       const password = document.getElementById('passwordInput').value;
       const btn      = document.getElementById('signInBtn');
       const errEl    = document.getElementById('loginError');
 
       errEl.classList.remove('visible');
 
-      if (!email || !password) {
-        errEl.textContent = 'Please enter your email and password.';
+      if (!username || !password) {
+        errEl.textContent = 'Please enter your username and password.';
         errEl.classList.add('visible');
         return;
       }
@@ -145,20 +76,21 @@
       setButtonLoading(btn, true);
 
       try {
-        const sb = getSupabase();
-        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        const sb    = getSupabase();
+        const email = usernameToEmail(username);
 
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
         if (error) throw error;
 
         redirectUser(data.user);
       } catch (err) {
-        errEl.textContent = err.message || 'Sign in failed. Please try again.';
+        errEl.textContent = 'Incorrect username or password.';
         errEl.classList.add('visible');
         setButtonLoading(btn, false);
       }
     }
 
-    async function redirectUser(user) {
+    function redirectUser(user) {
       if (!user) return;
       if (user.email === ADMIN_EMAIL) {
         window.location.href = 'pages/admin.html';
@@ -167,28 +99,9 @@
       }
     }
 
-    // Allow Enter key to submit
+    // Enter key to submit
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') handleSignIn();
-    });
-
-    // Forgot password
-    document.getElementById('forgotPasswordLink').addEventListener('click', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('emailInput').value.trim();
-      if (!email) {
-        toast('Enter your email address first', 'error');
-        return;
-      }
-      try {
-        const sb = getSupabase();
-        await sb.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin + '/index.html'
-        });
-        toast('Password reset email sent!', 'success');
-      } catch (err) {
-        toast('Failed to send reset email', 'error');
-      }
     });
   </script>
 </body>
