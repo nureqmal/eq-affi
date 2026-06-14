@@ -220,7 +220,8 @@
             <div class="user-email" id="sidebarEmail">—</div>
           </div>
         </div>
-        <button class="btn btn-ghost w-full mt-4" onclick="signOut()" style="justify-content:flex-start;font-size:0.82rem;">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"></button>
+        <button class="btn btn-ghost w-full mt-4" style="margin-top:8px;" onclick="signOut()" style="justify-content:flex-start;font-size:0.82rem;">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           Sign out
         </button>
@@ -437,10 +438,11 @@
       { id: 'first_sale',    emoji: '🎯', title: 'First Sale',       desc: 'Made your very first sale. Welcome to the team!',                                           threshold: 1  },
       { id: 'rising_star',   emoji: '⭐', title: 'Rising Star',      desc: 'Hit 5 sales. Commission increases to RM12 per sale.',                                       threshold: 5  },
       { id: 'top_performer', emoji: '🔥', title: 'Top Performer',    desc: 'Reached 25 sales. Commission increases to RM15 per sale.',                                  threshold: 25 },
-      { id: 'elite',         emoji: '👑', title: 'Elite Affiliator', desc: 'Reached 50 sales. Commission increases to RM20 per sale',                                   threshold: 50 },
+      { id: 'elite',         emoji: '👑', title: 'Elite Affiliator', desc: 'Achieved 50 sales. Commission increases to RM20 per sale.',                                 threshold: 50 },
     ];
 
     // ── Auth guard ──
+    initTheme();
     window.addEventListener('load', async () => {
       const user = await getCurrentUser();
       if (!user) { window.location.href = '../index.html'; return; }
