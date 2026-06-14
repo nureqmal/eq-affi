@@ -72,6 +72,10 @@
           <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           Announcements
         </button>
+        <button class="nav-item" id="nav-updates" onclick="showSection('updates')">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+          Updates
+        </button>
       </div>
 
       <div class="sidebar-footer">
@@ -233,7 +237,92 @@
         </div>
       </div>
 
+
+      <!-- ═══ SECTION: UPDATES ═══ -->
+      <div id="section-updates" style="display:none">
+        <div class="page-header">
+          <h1>Updates</h1>
+          <p>Post new template releases and changelog updates for affiliators</p>
+        </div>
+        <div class="page-body">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:20px;">
+            <button class="btn btn-primary btn-sm" onclick="openModal('addUpdateModal')">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Update
+            </button>
+          </div>
+
+          <!-- Tab nav -->
+          <div class="tab-nav" style="margin-bottom:20px;">
+            <button class="tab-btn active" id="tab-all" onclick="filterUpdates('all')">All</button>
+            <button class="tab-btn" id="tab-template" onclick="filterUpdates('template')">New Templates</button>
+            <button class="tab-btn" id="tab-changelog" onclick="filterUpdates('changelog')">Changelog</button>
+          </div>
+
+          <div id="adminUpdatesFeed">
+            <div class="empty-state"><div class="loading-spinner"></div></div>
+          </div>
+        </div>
+      </div>
+
     </main>
+  </div>
+
+
+  <!-- ═══ MODAL: Add/Edit Update ═══ -->
+  <div class="modal-overlay" id="addUpdateModal">
+    <div class="modal" style="max-width:540px;">
+      <div class="modal-header">
+        <span class="modal-title" id="updateModalTitle">New Update</span>
+        <button class="modal-close" onclick="closeModal('addUpdateModal')">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <input type="hidden" id="updateEditId">
+      <div class="field">
+        <label>Type</label>
+        <select id="updateType" onchange="toggleUpdateFields()">
+          <option value="template">Template Release</option>
+          <option value="changelog">Changelog</option>
+        </select>
+      </div>
+      <div class="field"><label>Title / Template Name</label><input type="text" id="updateTitle" placeholder="e.g. Minimalist CV Template"></div>
+      <div class="field"><label>Description</label><textarea id="updateDesc" placeholder="Describe this update or template…"></textarea></div>
+
+      <!-- Template only fields -->
+      <div id="templateFields">
+        <div class="field">
+          <label>Preview Image</label>
+          <div style="border:2px dashed var(--border);border-radius:var(--radius-md);padding:20px;text-align:center;cursor:pointer;transition:border-color var(--transition);" id="imageDropZone" onclick="document.getElementById('imageUpload').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondragleave="this.style.borderColor=''" ondrop="handleImageDrop(event)">
+            <input type="file" id="imageUpload" accept=".jpg,.jpeg,.png,.webp" style="display:none;" onchange="handleImageSelect(this)">
+            <div id="imagePreviewWrap" style="display:none;">
+              <img id="imagePreview" style="max-width:100%;max-height:180px;border-radius:var(--radius-sm);object-fit:cover;">
+              <button onclick="clearImage(event)" style="display:block;margin:10px auto 0;background:var(--red-muted);border:1px solid rgba(224,92,92,0.2);color:var(--red);padding:4px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:0.78rem;">Remove</button>
+            </div>
+            <div id="imageUploadPrompt">
+              <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 8px;display:block;color:var(--text-tertiary);"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <p style="font-size:0.82rem;color:var(--text-secondary);">Click or drag to upload image</p>
+              <p style="font-size:0.72rem;color:var(--text-tertiary);margin-top:4px;">JPG, PNG, WEBP • Max 5MB</p>
+            </div>
+          </div>
+          <input type="hidden" id="updateImageUrl">
+        </div>
+        <div class="field"><label>Demo Link (optional)</label><input type="text" id="updateDemoLink" placeholder="https://…"></div>
+      </div>
+
+      <div class="field">
+        <label>Date</label>
+        <input type="datetime-local" id="updateDate">
+      </div>
+      <div class="field" style="display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" id="updatePinned" style="width:auto;accent-color:var(--gold);">
+        <label for="updatePinned" style="margin:0;cursor:pointer;">Pin to top</label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('addUpdateModal')">Cancel</button>
+        <button class="btn btn-primary" id="saveUpdateBtn" onclick="saveUpdate()" style="width:auto;">Post Update</button>
+      </div>
+    </div>
   </div>
 
   <!-- ═══ MODAL: Add Affiliator ═══ -->
@@ -383,13 +472,13 @@
     }
 
     async function loadAll() {
-      await Promise.all([loadAffiliators(), loadCommissions(), loadAnnouncements()]);
+      await Promise.all([loadAffiliators(), loadCommissions(), loadAnnouncements(), loadUpdates()]);
       updateOverviewStats();
     }
 
     // ── Navigation ──
     function showSection(name) {
-      ['overview','affiliators','commissions','announcements'].forEach(s => {
+      ['overview','affiliators','commissions','announcements','updates'].forEach(s => {
         document.getElementById('section-' + s).style.display = s === name ? '' : 'none';
         document.getElementById('nav-' + s)?.classList.toggle('active', s === name);
       });
@@ -833,6 +922,225 @@
       document.getElementById('statActive').textContent     = active;
       document.getElementById('statUses').textContent       = uses.toLocaleString();
       document.getElementById('statCommission').textContent = formatCurrency(commission);
+    }
+
+
+    // ══════════════════════════════════════════
+    // UPDATES
+    // ══════════════════════════════════════════
+    let updatesData = [];
+    let updatesFilter = 'all';
+    let imageFile = null;
+
+    async function loadUpdates() {
+      const sb = getSupabase();
+      const { data, error } = await sb.from('updates')
+        .select('*').order('pinned', { ascending: false }).order('post_date', { ascending: false });
+      if (error) { toast('Error loading updates', 'error'); return; }
+      updatesData = data || [];
+      renderAdminUpdates();
+    }
+
+    function filterUpdates(type) {
+      updatesFilter = type;
+      ['all','template','changelog'].forEach(t => {
+        document.getElementById('tab-' + t)?.classList.toggle('active', t === type);
+      });
+      renderAdminUpdates();
+    }
+
+    function renderAdminUpdates() {
+      const feed = document.getElementById('adminUpdatesFeed');
+      const list = updatesFilter === 'all' ? updatesData : updatesData.filter(u => u.type === updatesFilter);
+
+      if (!list.length) {
+        feed.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg></div><h3>No updates yet</h3><p>Post your first template release or changelog.</p></div>';
+        return;
+      }
+
+      feed.innerHTML = list.map(u => `
+        <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px;${u.pinned ? 'border-left:3px solid var(--gold);' : ''}transition:border-color var(--transition);">
+          ${u.type === 'template' && u.image_url ? `<img src="${u.image_url}" style="width:100%;height:180px;object-fit:cover;display:block;" onerror="this.style.display='none'">` : ''}
+          ${u.type === 'template' && !u.image_url ? `<div style="width:100%;height:120px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;"><span style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;color:var(--gold);">EQStudio</span></div>` : ''}
+          <div style="padding:18px 20px;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px;">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                ${u.pinned ? '<span class="badge badge-pinned" style="font-size:0.65rem;">📌 Pinned</span>' : ''}
+                <span class="badge" style="background:${u.type === 'template' ? 'rgba(201,164,74,0.12)' : 'var(--bg-elevated)'};color:${u.type === 'template' ? 'var(--gold)' : 'var(--text-secondary)'};border:1px solid ${u.type === 'template' ? 'rgba(201,164,74,0.2)' : 'var(--border)'};font-size:0.65rem;">${u.type === 'template' ? '🎨 Template' : '📝 Changelog'}</span>
+              </div>
+              <div style="display:flex;gap:6px;flex-shrink:0;">
+                <button class="btn btn-ghost btn-icon btn-sm" onclick="openEditUpdate('${u.id}')" title="Edit">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="btn btn-ghost btn-icon btn-sm" onclick="toggleUpdatePin('${u.id}',${u.pinned})" title="${u.pinned ? 'Unpin' : 'Pin'}">
+                  <svg width="14" height="14" fill="${u.pinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                </button>
+                <button class="btn btn-danger btn-icon btn-sm" onclick="deleteUpdate('${u.id}')" title="Delete">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+                </button>
+              </div>
+            </div>
+            <div style="font-size:0.95rem;font-weight:600;color:var(--text-primary);margin-bottom:6px;">${u.title}</div>
+            ${u.description ? `<div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;margin-bottom:8px;">${u.description}</div>` : ''}
+            <div style="font-size:0.75rem;color:var(--text-tertiary);">${formatDateTime(u.post_date)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleUpdateFields() {
+      const type = document.getElementById('updateType').value;
+      document.getElementById('templateFields').style.display = type === 'template' ? '' : 'none';
+    }
+
+    function handleImageSelect(input) {
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) { toast('Image must be under 5MB', 'error'); return; }
+      imageFile = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('imagePreview').src = e.target.result;
+        document.getElementById('imagePreviewWrap').style.display = '';
+        document.getElementById('imageUploadPrompt').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleImageDrop(e) {
+      e.preventDefault();
+      document.getElementById('imageDropZone').style.borderColor = '';
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        document.getElementById('imageUpload').files = dt.files;
+        handleImageSelect(document.getElementById('imageUpload'));
+      }
+    }
+
+    function clearImage(e) {
+      e.stopPropagation();
+      imageFile = null;
+      document.getElementById('imageUpload').value = '';
+      document.getElementById('updateImageUrl').value = '';
+      document.getElementById('imagePreviewWrap').style.display = 'none';
+      document.getElementById('imageUploadPrompt').style.display = '';
+    }
+
+    async function uploadImage() {
+      if (!imageFile) return document.getElementById('updateImageUrl').value || null;
+      const sb   = getSupabase();
+      const ext  = imageFile.name.split('.').pop();
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await sb.storage.from('template-previews').upload(path, imageFile, { upsert: true });
+      if (error) throw new Error('Image upload failed: ' + error.message);
+      const { data } = sb.storage.from('template-previews').getPublicUrl(path);
+      return data.publicUrl;
+    }
+
+    async function saveUpdate() {
+      const id       = document.getElementById('updateEditId').value;
+      const type     = document.getElementById('updateType').value;
+      const title    = document.getElementById('updateTitle').value.trim();
+      const desc     = document.getElementById('updateDesc').value.trim();
+      const demoLink = document.getElementById('updateDemoLink').value.trim();
+      const date     = document.getElementById('updateDate').value;
+      const pinned   = document.getElementById('updatePinned').checked;
+      const btn      = document.getElementById('saveUpdateBtn');
+
+      if (!title) { toast('Title is required', 'error'); return; }
+      setButtonLoading(btn, true);
+
+      try {
+        const imageUrl = type === 'template' ? await uploadImage() : null;
+        const user = await getCurrentUser();
+        const payload = {
+          type, title, description: desc, pinned,
+          image_url: imageUrl,
+          demo_link: demoLink || null,
+          post_date: date ? new Date(date).toISOString() : new Date().toISOString(),
+          created_by: user?.id
+        };
+
+        const sb = getSupabase();
+        if (id) {
+          const { error } = await sb.from('updates').update(payload).eq('id', id);
+          if (error) throw error;
+          toast('Update edited!', 'success');
+        } else {
+          const { error } = await sb.from('updates').insert(payload);
+          if (error) throw error;
+          toast('Update posted!', 'success');
+        }
+
+        closeModal('addUpdateModal');
+        resetUpdateForm();
+        await loadUpdates();
+      } catch (err) {
+        toast(err.message || 'Failed to save update', 'error');
+      } finally {
+        setButtonLoading(btn, false);
+      }
+    }
+
+    function resetUpdateForm() {
+      document.getElementById('updateEditId').value  = '';
+      document.getElementById('updateType').value    = 'template';
+      document.getElementById('updateTitle').value   = '';
+      document.getElementById('updateDesc').value    = '';
+      document.getElementById('updateDemoLink').value = '';
+      document.getElementById('updateImageUrl').value = '';
+      document.getElementById('updatePinned').checked = false;
+      document.getElementById('updateModalTitle').textContent = 'New Update';
+      document.getElementById('saveUpdateBtn').innerHTML = 'Post Update';
+      clearImage({ stopPropagation: () => {} });
+      toggleUpdateFields();
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      document.getElementById('updateDate').value = now.toISOString().slice(0,16);
+    }
+
+    function openEditUpdate(id) {
+      const u = updatesData.find(x => x.id === id);
+      if (!u) return;
+      document.getElementById('updateEditId').value  = u.id;
+      document.getElementById('updateType').value    = u.type;
+      document.getElementById('updateTitle').value   = u.title;
+      document.getElementById('updateDesc').value    = u.description || '';
+      document.getElementById('updateDemoLink').value = u.demo_link || '';
+      document.getElementById('updateImageUrl').value = u.image_url || '';
+      document.getElementById('updatePinned').checked = u.pinned;
+      document.getElementById('updateModalTitle').textContent = 'Edit Update';
+      document.getElementById('saveUpdateBtn').innerHTML = 'Save Changes';
+      toggleUpdateFields();
+
+      if (u.image_url) {
+        document.getElementById('imagePreview').src = u.image_url;
+        document.getElementById('imagePreviewWrap').style.display = '';
+        document.getElementById('imageUploadPrompt').style.display = 'none';
+      }
+
+      const d = new Date(u.post_date);
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      document.getElementById('updateDate').value = d.toISOString().slice(0,16);
+      openModal('addUpdateModal');
+    }
+
+    async function toggleUpdatePin(id, currentlyPinned) {
+      const sb = getSupabase();
+      const { error } = await sb.from('updates').update({ pinned: !currentlyPinned }).eq('id', id);
+      if (error) { toast('Failed', 'error'); return; }
+      await loadUpdates();
+    }
+
+    async function deleteUpdate(id) {
+      if (!confirmAction('Delete this update?')) return;
+      const sb = getSupabase();
+      const { error } = await sb.from('updates').delete().eq('id', id);
+      if (error) { toast('Delete failed', 'error'); return; }
+      toast('Update deleted', 'success');
+      await loadUpdates();
     }
 
     // Close modal on overlay click
