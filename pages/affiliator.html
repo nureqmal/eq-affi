@@ -5,6 +5,191 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EQStudio — Affiliate Portal</title>
   <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* ── Milestone Badges ── */
+    .badges-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .badge-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      transition: border-color var(--transition), transform var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .badge-card.unlocked {
+      border-color: rgba(201,168,76,0.3);
+      background: linear-gradient(135deg, rgba(201,168,76,0.06) 0%, var(--bg-elevated) 100%);
+    }
+    .badge-card.unlocked:hover { transform: translateY(-2px); border-color: rgba(201,168,76,0.5); }
+    .badge-card.locked { opacity: 0.45; }
+    .badge-icon {
+      font-size: 1.8rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .badge-info h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 3px;
+    }
+    .badge-card.unlocked .badge-info h4 { color: var(--gold); }
+    .badge-info p {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+    .badge-unlocked-tick {
+      position: absolute;
+      top: 10px; right: 10px;
+      width: 18px; height: 18px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem;
+      color: #0a0a0a;
+      font-weight: 700;
+    }
+
+    /* ── Progress Bar ── */
+    .progress-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .progress-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .progress-count {
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+    }
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-elevated);
+      border-radius: 99px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 4px;
+    }
+    .progress-msg {
+      font-size: 0.78rem;
+      color: var(--text-tertiary);
+      margin-top: 8px;
+    }
+    .progress-msg span { color: var(--gold); font-weight: 600; }
+
+    /* ── Resource Library ── */
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .resource-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      transition: border-color var(--transition);
+    }
+    .resource-card:hover { border-color: var(--border-strong); }
+    .resource-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .resource-icon {
+      width: 32px; height: 32px;
+      border-radius: var(--radius-sm);
+      background: var(--gold-dim);
+      border: 1px solid rgba(201,168,76,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .resource-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .resource-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+    .resource-content {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 12px;
+      font-style: italic;
+    }
+    .tips-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 0;
+    }
+    .tips-list li {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      padding-left: 16px;
+      position: relative;
+      line-height: 1.5;
+    }
+    .tips-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--gold);
+    }
+
+    @media (max-width: 768px) {
+      .badges-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .badge-card { padding: 14px; gap: 10px; }
+      .badge-icon { font-size: 1.4rem; }
+      .resource-grid { grid-template-columns: 1fr; }
+      .progress-card { padding: 16px; }
+    }
+    @media (max-width: 390px) {
+      .badges-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .badge-card { padding: 12px; }
+    }
+  </style>
 </head>
 <body>
 
@@ -31,39 +216,23 @@
       <div class="onboarding-steps">
         <div class="onboarding-step">
           <div class="step-number">1</div>
-          <div class="step-content">
-            <h4>Copy your promo code</h4>
-            <p>Use the button above to copy your unique code. This is how we track referrals from you.</p>
-          </div>
+          <div class="step-content"><h4>Copy your promo code</h4><p>Use the button above to copy your unique code. This is how we track referrals from you.</p></div>
         </div>
         <div class="onboarding-step">
           <div class="step-number">2</div>
-          <div class="step-content">
-            <h4>Share with your audience</h4>
-            <p>Post on social media, add to your content, mention in videos — anywhere your audience will see it.</p>
-          </div>
+          <div class="step-content"><h4>Share with your audience</h4><p>Post on social media, add to your content, mention in videos — anywhere your audience will see it.</p></div>
         </div>
         <div class="onboarding-step">
           <div class="step-number">3</div>
-          <div class="step-content">
-            <h4>Track your stats</h4>
-            <p>Come back to this portal anytime to see how many times your code has been used and your commission balance.</p>
-          </div>
+          <div class="step-content"><h4>Track your stats</h4><p>Come back to this portal anytime to see how many times your code has been used and your commission balance.</p></div>
         </div>
         <div class="onboarding-step">
           <div class="step-number">4</div>
-          <div class="step-content">
-            <h4>Get paid</h4>
-            <p>Commission payouts are handled by the EQStudio team. You'll see every payment logged in your commission history.</p>
-          </div>
+          <div class="step-content"><h4>Get paid</h4><p>Commission payouts are handled by the EQStudio team. You'll see every payment logged in your commission history.</p></div>
         </div>
       </div>
 
       <div class="onboarding-actions">
-        <a href="https://eqstudio.com/demo" target="_blank" rel="noopener" class="btn btn-secondary">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          View Demo
-        </a>
         <button class="btn btn-primary" onclick="completeOnboarding()">
           Go to Dashboard
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -99,6 +268,14 @@
         <button class="nav-item" id="nav-commissions" onclick="showSection('commissions')">
           <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           Commissions
+        </button>
+        <button class="nav-item" id="nav-badges" onclick="showSection('badges')">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Milestones
+        </button>
+        <button class="nav-item" id="nav-resources" onclick="showSection('resources')">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          Promote Tools
         </button>
         <button class="nav-item" id="nav-announcements" onclick="showSection('announcements')">
           <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -141,9 +318,7 @@
             <div class="stat-card">
               <div class="stat-card-header">
                 <span class="stat-label">Code Uses</span>
-                <div class="stat-icon">
-                  <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-                </div>
+                <div class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
               </div>
               <div class="stat-value" id="statUses">—</div>
               <div class="stat-sublabel">total referrals</div>
@@ -151,9 +326,7 @@
             <div class="stat-card">
               <div class="stat-card-header">
                 <span class="stat-label">Commission Earned</span>
-                <div class="stat-icon">
-                  <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                </div>
+                <div class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
               </div>
               <div class="stat-value gold" id="statCommission">—</div>
               <div class="stat-sublabel">all time total</div>
@@ -161,13 +334,23 @@
             <div class="stat-card">
               <div class="stat-card-header">
                 <span class="stat-label">Account Status</span>
-                <div class="stat-icon">
-                  <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                </div>
+                <div class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
               </div>
               <div id="statStatus" class="stat-value" style="font-size:1.1rem;margin-top:4px;">—</div>
               <div class="stat-sublabel" id="statLastActive">—</div>
             </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="progress-card" id="progressCard">
+            <div class="progress-header">
+              <span class="progress-label" id="progressLabel">Next Milestone</span>
+              <span class="progress-count" id="progressCount">0 / 0</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="progressFill" style="width:0%"></div>
+            </div>
+            <div class="progress-msg" id="progressMsg">Loading…</div>
           </div>
 
           <!-- Promo Code Card -->
@@ -186,9 +369,7 @@
                   Copy Code
                 </button>
               </div>
-              <p style="font-size:0.78rem;color:var(--text-tertiary);margin-top:12px;">
-                Every time someone uses your code, it's counted as a referral from you.
-              </p>
+              <p style="font-size:0.78rem;color:var(--text-tertiary);margin-top:12px;">Every time someone uses your code, it's counted as a referral from you.</p>
             </div>
           </div>
 
@@ -212,8 +393,6 @@
           <p>Full log of all payments received from EQStudio</p>
         </div>
         <div class="page-body">
-
-          <!-- Summary card -->
           <div class="stats-grid" style="margin-bottom:24px;">
             <div class="stat-card">
               <div class="stat-card-header"><span class="stat-label">Total Earned</span></div>
@@ -226,15 +405,87 @@
               <div class="stat-sublabel">total transactions</div>
             </div>
           </div>
-
           <div class="card">
-            <div class="card-header">
-              <div class="card-title">Payment Log</div>
-            </div>
+            <div class="card-header"><div class="card-title">Payment Log</div></div>
             <div class="card-body" id="commissionList">
               <div class="empty-state"><div class="loading-spinner"></div></div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- ═══ SECTION: MILESTONES ═══ -->
+      <div id="section-badges" style="display:none;">
+        <div class="page-header">
+          <h1>Milestones</h1>
+          <p>Unlock achievement badges as your referrals grow</p>
+        </div>
+        <div class="page-body">
+          <!-- Progress bar repeated here too -->
+          <div class="progress-card" id="progressCard2">
+            <div class="progress-header">
+              <span class="progress-label" id="progressLabel2">Next Milestone</span>
+              <span class="progress-count" id="progressCount2">0 / 0</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="progressFill2" style="width:0%"></div>
+            </div>
+            <div class="progress-msg" id="progressMsg2">Loading…</div>
+          </div>
+
+          <div class="badges-grid" id="badgesGrid">
+            <div class="empty-state"><div class="loading-spinner"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SECTION: PROMOTE TOOLS ═══ -->
+      <div id="section-resources" style="display:none;">
+        <div class="page-header">
+          <h1>Promote Tools</h1>
+          <p>Ready-made assets to help you promote EQStudio effectively</p>
+        </div>
+        <div class="page-body">
+
+          <!-- Demo Link -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">🔗 Demo Link</div>
+                <div class="card-subtitle">Share this link with your audience to show them EQStudio</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="promo-display" style="max-width:100%;">
+                <span class="promo-code-text" id="demoLinkText" style="font-size:0.85rem;letter-spacing:0;">—</span>
+                <button class="promo-copy-btn" id="demoLinkCopyBtn" onclick="copyDemoLink()">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Copy Link
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sample Captions -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-header">
+              <div class="card-title">✍️ Sample Captions</div>
+            </div>
+            <div class="card-body" id="captionsBody">
+              <div style="display:flex;flex-direction:column;gap:14px;" id="captionsList"></div>
+            </div>
+          </div>
+
+          <!-- Tips -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">💡 Promotion Tips</div>
+            </div>
+            <div class="card-body">
+              <ul class="tips-list" id="tipsList"></ul>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -259,13 +510,11 @@
         </div>
         <div class="page-body">
           <div class="card" style="max-width:480px;">
-            <div class="card-header">
-              <div class="card-title">Contact Info</div>
-            </div>
+            <div class="card-header"><div class="card-title">Contact Info</div></div>
             <div class="card-body">
               <div class="field">
                 <label>Full Name</label>
-                <input type="text" id="profileName" placeholder="Your name" readonly style="opacity:0.6;cursor:not-allowed;">
+                <input type="text" id="profileName" readonly style="opacity:0.6;cursor:not-allowed;">
               </div>
               <div class="field">
                 <label>Username</label>
@@ -278,11 +527,8 @@
               <button class="btn btn-primary" id="saveProfileBtn" onclick="saveProfile()">Save Changes</button>
             </div>
           </div>
-
           <div class="card" style="max-width:480px;margin-top:24px;">
-            <div class="card-header">
-              <div class="card-title">Change Password</div>
-            </div>
+            <div class="card-header"><div class="card-title">Change Password</div></div>
             <div class="card-body">
               <div class="field">
                 <label>New Password</label>
@@ -311,16 +557,19 @@
     let myCommissions = [];
     let myAnnouncements = [];
 
+    // ── Milestone definitions ──
+    const MILESTONES = [
+      { id: 'first_sale',    emoji: '🎯', title: 'First Sale',      desc: 'Made your very first referral.',          threshold: 1  },
+      { id: 'rising_star',   emoji: '⭐', title: 'Rising Star',     desc: 'Hit 5 referrals. The journey begins.',   threshold: 5  },
+      { id: 'top_performer', emoji: '🔥', title: 'Top Performer',   desc: 'Reached 10 referrals. Impressive!',      threshold: 10 },
+      { id: 'elite',         emoji: '👑', title: 'Elite Affiliator', desc: 'Achieved 25 referrals. You\'re elite.',  threshold: 25 },
+    ];
+
     // ── Auth guard ──
     window.addEventListener('load', async () => {
       const user = await getCurrentUser();
       if (!user) { window.location.href = '../index.html'; return; }
-
-      // Admin shouldn't use this portal
-      if (user.email === ADMIN_EMAIL) {
-        window.location.href = 'admin.html'; return;
-      }
-
+      if (user.email === ADMIN_EMAIL) { window.location.href = 'admin.html'; return; }
       initSidebarToggle();
       await loadAffiliatorData(user);
     });
@@ -330,7 +579,6 @@
       const { data, error } = await sb.from('affiliators').select('*').eq('user_id', user.id).single();
 
       if (error || !data) {
-        // Account exists in auth but not DB — show message
         document.getElementById('dashGreeting').textContent = 'Account setup pending';
         toast('Your affiliate account is being set up. Contact admin.', 'info', 6000);
         return;
@@ -338,24 +586,22 @@
 
       myAffiliator = data;
 
-      // Update sidebar
       document.getElementById('sidebarName').textContent  = data.name;
-      document.getElementById('sidebarEmail').textContent = user.email;
+      document.getElementById('sidebarEmail').textContent = data.username || data.email.replace('@eqstudio.internal','');
       document.getElementById('userAvatar').textContent   = initials(data.name);
 
-      // Set greeting
-      const hour = new Date().getHours();
+      const hour  = new Date().getHours();
       const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
       document.getElementById('dashGreeting').textContent = `${greet}, ${data.name.split(' ')[0]}`;
 
-      // Check onboarding
-      if (!data.onboarded) {
-        showOnboarding(data);
-      }
+      if (!data.onboarded) showOnboarding(data);
 
       await Promise.all([loadStats(), loadCommissions(), loadAnnouncements()]);
+      renderBadges();
+      renderResources();
     }
 
+    // ── Onboarding ──
     function showOnboarding(data) {
       document.getElementById('onboardName').textContent = data.name.split(' ')[0];
       document.getElementById('onboardCode').textContent = data.promo_code;
@@ -364,9 +610,8 @@
 
     async function completeOnboarding() {
       document.getElementById('onboardingOverlay').style.display = 'none';
-      const sb = getSupabase();
       if (myAffiliator) {
-        await sb.from('affiliators').update({ onboarded: true }).eq('id', myAffiliator.id);
+        await getSupabase().from('affiliators').update({ onboarded: true }).eq('id', myAffiliator.id);
         myAffiliator.onboarded = true;
       }
     }
@@ -388,38 +633,73 @@
     function loadStats() {
       if (!myAffiliator) return;
       const a = myAffiliator;
-
       document.getElementById('statUses').textContent       = (a.code_uses || 0).toLocaleString();
       document.getElementById('statCommission').textContent = formatCurrency(a.total_commission);
       document.getElementById('mainPromoCode').textContent  = a.promo_code;
 
-      const statusEl = document.getElementById('statStatus');
       const isActive = a.status === 'active';
-      statusEl.innerHTML = `<span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}" style="font-size:0.8rem;"><span class="badge-dot"></span>${a.status}</span>`;
+      document.getElementById('statStatus').innerHTML = `<span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}" style="font-size:0.8rem;"><span class="badge-dot"></span>${a.status}</span>`;
       document.getElementById('statLastActive').textContent = a.last_active ? 'Last used ' + timeAgo(a.last_active) : 'No uses yet';
+
+      renderProgress();
     }
 
-    function copyPromoCode() {
-      if (!myAffiliator) return;
-      navigator.clipboard.writeText(myAffiliator.promo_code).then(() => {
-        const btn = document.getElementById('mainCopyBtn');
-        btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Copied!`;
-        btn.classList.add('copied');
-        setTimeout(() => {
-          btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Code`;
-          btn.classList.remove('copied');
-        }, 2200);
-        toast('Promo code copied!', 'success', 2000);
-      }).catch(() => {
-        toast('Could not copy — try manually selecting the code', 'error');
+    // ── Progress Bar ──
+    function renderProgress() {
+      const uses = myAffiliator?.code_uses || 0;
+      const next = MILESTONES.find(m => uses < m.threshold);
+      const prev = [...MILESTONES].reverse().find(m => uses >= m.threshold);
+
+      // Render both instances (dashboard + milestones page)
+      ['', '2'].forEach(suffix => {
+        const labelEl  = document.getElementById('progressLabel' + suffix);
+        const countEl  = document.getElementById('progressCount' + suffix);
+        const fillEl   = document.getElementById('progressFill' + suffix);
+        const msgEl    = document.getElementById('progressMsg' + suffix);
+        if (!labelEl) return;
+
+        if (!next) {
+          // All milestones achieved
+          labelEl.textContent  = '👑 Elite Affiliator';
+          countEl.textContent  = `${uses} uses`;
+          fillEl.style.width   = '100%';
+          msgEl.innerHTML      = '<span style="color:var(--gold);font-weight:600;">Maximum tier reached 🏆 You\'ve unlocked all milestones!</span>';
+        } else {
+          const from     = prev ? prev.threshold : 0;
+          const pct      = Math.min(((uses - from) / (next.threshold - from)) * 100, 100);
+          const needed   = next.threshold - uses;
+          labelEl.textContent  = `Next: ${next.emoji} ${next.title}`;
+          countEl.textContent  = `${uses} / ${next.threshold}`;
+          fillEl.style.width   = Math.max(pct, uses > 0 ? 4 : 0) + '%';
+          msgEl.innerHTML      = `You're <span>${needed} sale${needed !== 1 ? 's' : ''}</span> away from <span>${next.title}</span>`;
+        }
       });
+    }
+
+    // ── Milestone Badges ──
+    function renderBadges() {
+      const uses = myAffiliator?.code_uses || 0;
+      const grid = document.getElementById('badgesGrid');
+      grid.innerHTML = MILESTONES.map(m => {
+        const unlocked = uses >= m.threshold;
+        return `
+          <div class="badge-card ${unlocked ? 'unlocked' : 'locked'}">
+            ${unlocked ? '<div class="badge-unlocked-tick">✓</div>' : ''}
+            <div class="badge-icon">${m.emoji}</div>
+            <div class="badge-info">
+              <h4>${m.title}</h4>
+              <p>${m.desc}</p>
+              <p style="margin-top:5px;font-size:0.7rem;color:var(--text-tertiary);">${unlocked ? '✓ Unlocked' : `${m.threshold} uses required`}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     // ── Commissions ──
     async function loadCommissions() {
       if (!myAffiliator) return;
-      const sb = getSupabase();
-      const { data, error } = await sb.from('commission_history')
+      const { data, error } = await getSupabase().from('commission_history')
         .select('*').eq('affiliator_id', myAffiliator.id).order('payment_date', { ascending: false });
       if (error) return;
       myCommissions = data || [];
@@ -429,7 +709,6 @@
     function renderCommissions() {
       const list  = document.getElementById('commissionList');
       const total = myCommissions.reduce((s, c) => s + parseFloat(c.amount), 0);
-
       document.getElementById('totalEarned').textContent   = formatCurrency(total);
       document.getElementById('totalPayments').textContent = myCommissions.length;
 
@@ -437,7 +716,6 @@
         list.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><h3>No payments yet</h3><p>Your commission history will appear here once the team logs a payment.</p></div>';
         return;
       }
-
       list.innerHTML = myCommissions.map(c => `
         <div class="commission-entry">
           <div>
@@ -451,8 +729,7 @@
 
     // ── Announcements ──
     async function loadAnnouncements() {
-      const sb = getSupabase();
-      const { data, error } = await sb.from('announcements')
+      const { data, error } = await getSupabase().from('announcements')
         .select('*').order('pinned', { ascending: false }).order('created_at', { ascending: false });
       if (error) return;
       myAnnouncements = data || [];
@@ -460,21 +737,16 @@
       renderDashAnnouncements();
     }
 
-    // Format plain text → HTML: preserve paragraphs, convert bullet lines
     function formatContent(text) {
       if (!text) return '';
-      return text
-        .split('\n')
-        .map(line => {
-          const trimmed = line.trim();
-          if (!trimmed) return '<br>';
-          // Detect bullet lines: -, *, •
-          if (/^[-*•]\s+/.test(trimmed)) {
-            return '<span style="display:block;padding-left:16px;position:relative;margin:2px 0;"><span style="position:absolute;left:0;color:var(--gold);">•</span>' + trimmed.replace(/^[-*•]\s+/, '') + '</span>';
-          }
-          return '<span style="display:block;margin:2px 0;">' + trimmed + '</span>';
-        })
-        .join('');
+      return text.split('\n').map(line => {
+        const trimmed = line.trim();
+        if (!trimmed) return '<br>';
+        if (/^[-*•]\s+/.test(trimmed)) {
+          return '<span style="display:block;padding-left:16px;position:relative;margin:2px 0;"><span style="position:absolute;left:0;color:var(--gold);">•</span>' + trimmed.replace(/^[-*•]\s+/, '') + '</span>';
+        }
+        return '<span style="display:block;margin:2px 0;">' + trimmed + '</span>';
+      }).join('');
     }
 
     function renderAnnouncements() {
@@ -498,49 +770,138 @@
     }
 
     function renderDashAnnouncements() {
-      const el      = document.getElementById('dashAnnouncements');
+      const el = document.getElementById('dashAnnouncements');
       const preview = myAnnouncements.slice(0, 2);
       if (!preview.length) {
         el.innerHTML = '<div class="empty-state" style="padding:24px;"><p>No announcements yet.</p></div>';
         return;
       }
-      el.innerHTML = `
-        <div class="announcement-feed">
-          ${preview.map(a => `
-            <div class="announcement-item ${a.pinned ? 'pinned' : ''}">
-              <div class="announcement-header">
-                <div>
-                  ${a.pinned ? '<span class="badge badge-pinned" style="font-size:0.65rem;padding:2px 8px;margin-bottom:4px;display:inline-block;">📌 Pinned</span>' : ''}
-                  <div class="announcement-title">${a.title}</div>
-                  <div class="announcement-meta">${timeAgo(a.created_at)}</div>
-                </div>
-              </div>
-              <div class="announcement-content" style="white-space:normal;">${formatContent(a.content)}</div>
+      el.innerHTML = `<div class="announcement-feed">${preview.map(a => `
+        <div class="announcement-item ${a.pinned ? 'pinned' : ''}">
+          <div class="announcement-header">
+            <div>
+              ${a.pinned ? '<span class="badge badge-pinned" style="font-size:0.65rem;padding:2px 8px;margin-bottom:4px;display:inline-block;">📌 Pinned</span>' : ''}
+              <div class="announcement-title">${a.title}</div>
+              <div class="announcement-meta">${timeAgo(a.created_at)}</div>
             </div>
-          `).join('')}
+          </div>
+          <div class="announcement-content" style="white-space:normal;">${formatContent(a.content)}</div>
         </div>
-      `;
+      `).join('')}</div>`;
+    }
+
+    // ── Resource Library ──
+    function renderResources() {
+      const code    = myAffiliator?.promo_code || 'YOURCODE';
+      const demoUrl = APP_CONFIG?.demoLink || 'https://eqstudio.com';
+
+      // Demo link
+      document.getElementById('demoLinkText').textContent = demoUrl;
+
+      // Sample captions
+      const captions = [
+        {
+          lang: '🇲🇾 Malay',
+          text: `Nak cuba EQStudio? Guna kod promo aku — ${code} — dan dapatkan tawaran eksklusif! Cuba sekarang 👉 ${demoUrl}`
+        },
+        {
+          lang: '🇬🇧 English',
+          text: `Looking for a great deal? Use my promo code ${code} when you try EQStudio and enjoy exclusive benefits! Check it out 👉 ${demoUrl}`
+        },
+        {
+          lang: '🇲🇾 Malay (Casual)',
+          text: `Korang dah try EQStudio belum? Best gila! Guna kod ${code} untuk dapat special deal. Link kat sini 👉 ${demoUrl}`
+        },
+        {
+          lang: '🇬🇧 English (Short)',
+          text: `Use code ${code} for an exclusive EQStudio deal → ${demoUrl} 🔥`
+        }
+      ];
+
+      document.getElementById('captionsList').innerHTML = captions.map((c, i) => `
+        <div class="resource-card">
+          <div class="resource-card-header">
+            <div class="resource-icon">✍️</div>
+            <div class="resource-title">${c.lang}</div>
+          </div>
+          <div class="resource-content">${c.text}</div>
+          <button class="btn btn-gold-outline btn-sm" onclick="copyCaption(${i})" id="captionBtn${i}">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy Caption
+          </button>
+        </div>
+      `).join('');
+
+      // Store captions for copy function
+      window._captions = captions;
+
+      // Tips
+      const tips = [
+        'Share your promo code in your bio — it works 24/7 even when you\'re not posting.',
+        'Add your code to every post, story, and reel that mentions EQStudio.',
+        'Tell your audience WHY you use EQStudio — personal stories convert better than ads.',
+        'Follow up with your audience after they use the code — ask for their feedback.',
+        'Post consistently — the more you mention EQStudio, the more referrals you get.',
+        'Use the sample captions above as a starting point, then personalise them with your own voice.',
+      ];
+
+      document.getElementById('tipsList').innerHTML = tips.map(t => `<li>${t}</li>`).join('');
+    }
+
+    function copyCaption(index) {
+      const text = window._captions[index].text;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('captionBtn' + index);
+        btn.innerHTML = '✓ Copied!';
+        setTimeout(() => {
+          btn.innerHTML = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Caption`;
+        }, 2000);
+        toast('Caption copied!', 'success', 2000);
+      });
+    }
+
+    function copyDemoLink() {
+      const url = APP_CONFIG?.demoLink || 'https://eqstudio.com';
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = document.getElementById('demoLinkCopyBtn');
+        btn.innerHTML = '✓ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Link`;
+          btn.classList.remove('copied');
+        }, 2000);
+        toast('Demo link copied!', 'success', 2000);
+      });
+    }
+
+    function copyPromoCode() {
+      if (!myAffiliator) return;
+      navigator.clipboard.writeText(myAffiliator.promo_code).then(() => {
+        const btn = document.getElementById('mainCopyBtn');
+        btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Copied!`;
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Code`;
+          btn.classList.remove('copied');
+        }, 2200);
+        toast('Promo code copied!', 'success', 2000);
+      }).catch(() => toast('Could not copy', 'error'));
     }
 
     // ── Profile ──
     async function loadProfile() {
       if (!myAffiliator) return;
       document.getElementById('profileName').value     = myAffiliator.name;
-      // Derive username from stored username field or strip @eqstudio.internal from email
-      const username = myAffiliator.username || myAffiliator.email.replace('@eqstudio.internal', '');
-      document.getElementById('profileUsername').value = username;
+      document.getElementById('profileUsername').value = myAffiliator.username || myAffiliator.email.replace('@eqstudio.internal', '');
       document.getElementById('profileContact').value  = myAffiliator.contact || '';
     }
 
     async function saveProfile() {
       const contact = document.getElementById('profileContact').value.trim();
       const btn     = document.getElementById('saveProfileBtn');
-
       setButtonLoading(btn, true);
-      const sb = getSupabase();
-
       try {
-        const { error } = await sb.from('affiliators').update({ contact }).eq('id', myAffiliator.id);
+        const { error } = await getSupabase().from('affiliators').update({ contact }).eq('id', myAffiliator.id);
         if (error) throw error;
         myAffiliator.contact = contact;
         toast('Profile updated!', 'success');
@@ -555,17 +916,13 @@
       const p1  = document.getElementById('newPassword').value;
       const p2  = document.getElementById('confirmPassword').value;
       const btn = document.getElementById('changePasswordBtn');
-
       if (!p1 || p1.length < 8) { toast('Password must be at least 8 characters', 'error'); return; }
       if (p1 !== p2) { toast('Passwords do not match', 'error'); return; }
-
       setButtonLoading(btn, true);
-      const sb = getSupabase();
-
       try {
-        const { error } = await sb.auth.updateUser({ password: p1 });
+        const { error } = await getSupabase().auth.updateUser({ password: p1 });
         if (error) throw error;
-        document.getElementById('newPassword').value     = '';
+        document.getElementById('newPassword').value = '';
         document.getElementById('confirmPassword').value = '';
         toast('Password updated successfully!', 'success');
       } catch (err) {
@@ -577,7 +934,7 @@
 
     // ── Navigation ──
     function showSection(name) {
-      ['dashboard','commissions','announcements','profile'].forEach(s => {
+      ['dashboard','commissions','badges','resources','announcements','profile'].forEach(s => {
         document.getElementById('section-' + s).style.display = s === name ? '' : 'none';
         document.getElementById('nav-' + s)?.classList.toggle('active', s === name);
       });
