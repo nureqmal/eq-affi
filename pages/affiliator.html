@@ -105,78 +105,6 @@
     }
     .progress-msg span { color: var(--gold); font-weight: 600; }
 
-    /* ── Resource Library ── */
-    .resource-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    .resource-card {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 20px;
-      transition: border-color var(--transition);
-    }
-    .resource-card:hover { border-color: var(--border-strong); }
-    .resource-card-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .resource-icon {
-      width: 32px; height: 32px;
-      border-radius: var(--radius-sm);
-      background: var(--gold-dim);
-      border: 1px solid rgba(201,168,76,0.2);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.9rem;
-      flex-shrink: 0;
-    }
-    .resource-title {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    .resource-desc {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      line-height: 1.5;
-      margin-bottom: 14px;
-    }
-    .resource-content {
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 10px 12px;
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-      line-height: 1.5;
-      margin-bottom: 12px;
-      font-style: italic;
-    }
-    .tips-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 0;
-    }
-    .tips-list li {
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-      padding-left: 16px;
-      position: relative;
-      line-height: 1.5;
-    }
-    .tips-list li::before {
-      content: '•';
-      position: absolute;
-      left: 0;
-      color: var(--gold);
-    }
 
     @media (max-width: 768px) {
       .badges-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
@@ -435,26 +363,6 @@
           </div>
         </div>
       </div>
-
-          <!-- Sample Captions -->
-          <div class="card" style="margin-bottom:16px;">
-            <div class="card-header">
-              <div class="card-title">✍️ Sample Captions</div>
-            </div>
-            <div class="card-body" id="captionsBody">
-              <div style="display:flex;flex-direction:column;gap:14px;" id="captionsList"></div>
-            </div>
-          </div>
-
-          <!-- Tips -->
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">💡 Promotion Tips</div>
-            </div>
-            <div class="card-body">
-              <ul class="tips-list" id="tipsList"></ul>
-            </div>
-          </div>
 
         </div>
       </div>
@@ -758,90 +666,6 @@
           <div class="announcement-content" style="white-space:normal;">${formatContent(a.content)}</div>
         </div>
       `).join('')}</div>`;
-    }
-
-    // ── Resource Library ──
-    function renderResources() {
-      const code    = myAffiliator?.promo_code || 'YOURCODE';
-      const demoUrl = APP_CONFIG?.demoLink || 'https://eqstudio.com';
-
-      // Demo link
-      document.getElementById('demoLinkText').textContent = demoUrl;
-
-      // Sample captions
-      const captions = [
-        {
-          lang: '🇲🇾 Malay',
-          text: `Nak cuba EQStudio? Guna kod promo aku — ${code} — dan dapatkan tawaran eksklusif! Cuba sekarang 👉 ${demoUrl}`
-        },
-        {
-          lang: '🇬🇧 English',
-          text: `Looking for a great deal? Use my promo code ${code} when you try EQStudio and enjoy exclusive benefits! Check it out 👉 ${demoUrl}`
-        },
-        {
-          lang: '🇲🇾 Malay (Casual)',
-          text: `Korang dah try EQStudio belum? Best gila! Guna kod ${code} untuk dapat special deal. Link kat sini 👉 ${demoUrl}`
-        },
-        {
-          lang: '🇬🇧 English (Short)',
-          text: `Use code ${code} for an exclusive EQStudio deal → ${demoUrl} 🔥`
-        }
-      ];
-
-      document.getElementById('captionsList').innerHTML = captions.map((c, i) => `
-        <div class="resource-card">
-          <div class="resource-card-header">
-            <div class="resource-icon">✍️</div>
-            <div class="resource-title">${c.lang}</div>
-          </div>
-          <div class="resource-content">${c.text}</div>
-          <button class="btn btn-gold-outline btn-sm" onclick="copyCaption(${i})" id="captionBtn${i}">
-            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            Copy Caption
-          </button>
-        </div>
-      `).join('');
-
-      // Store captions for copy function
-      window._captions = captions;
-
-      // Tips
-      const tips = [
-        'Share your promo code in your bio — it works 24/7 even when you\'re not posting.',
-        'Add your code to every post, story, and reel that mentions EQStudio.',
-        'Tell your audience WHY you use EQStudio — personal stories convert better than ads.',
-        'Follow up with your audience after they use the code — ask for their feedback.',
-        'Post consistently — the more you mention EQStudio, the more referrals you get.',
-        'Use the sample captions above as a starting point, then personalise them with your own voice.',
-      ];
-
-      document.getElementById('tipsList').innerHTML = tips.map(t => `<li>${t}</li>`).join('');
-    }
-
-    function copyCaption(index) {
-      const text = window._captions[index].text;
-      navigator.clipboard.writeText(text).then(() => {
-        const btn = document.getElementById('captionBtn' + index);
-        btn.innerHTML = '✓ Copied!';
-        setTimeout(() => {
-          btn.innerHTML = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Caption`;
-        }, 2000);
-        toast('Caption copied!', 'success', 2000);
-      });
-    }
-
-    function copyDemoLink() {
-      const url = APP_CONFIG?.demoLink || 'https://eqstudio.com';
-      navigator.clipboard.writeText(url).then(() => {
-        const btn = document.getElementById('demoLinkCopyBtn');
-        btn.innerHTML = '✓ Copied!';
-        btn.classList.add('copied');
-        setTimeout(() => {
-          btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Link`;
-          btn.classList.remove('copied');
-        }, 2000);
-        toast('Demo link copied!', 'success', 2000);
-      });
     }
 
     function copyPromoCode() {
