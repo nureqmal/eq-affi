@@ -366,15 +366,15 @@
 
     // Milestone badge helper
     const MILESTONES = [
-      { emoji: '👑', title: 'Elite',        threshold: 25 },
-      { emoji: '🔥', title: 'Top Performer', threshold: 25 },
-      { emoji: '⭐', title: 'Rising Star',   threshold: 5  },
-      { emoji: '🎯', title: 'First Sale',    threshold: 1  },
+      { emoji: '👑', title: 'Elite Affiliator', threshold: 50 },
+      { emoji: '🔥', title: 'Top Performer',    threshold: 25 },
+      { emoji: '⭐', title: 'Rising Star',       threshold: 5  },
+      { emoji: '🎯', title: 'First Sale',        threshold: 1  },
     ];
     function getCurrentBadge(uses) {
       const u = uses || 0;
-      if (u >= 25) return '👑 Elite';
-      if (u >= 10) return '🔥 Top Performer';
+      if (u >= 50) return '👑 Elite Affiliator';
+      if (u >= 25) return '🔥 Top Performer';
       if (u >= 5)  return '⭐ Rising Star';
       if (u >= 1)  return '🎯 First Sale';
       return '—';
