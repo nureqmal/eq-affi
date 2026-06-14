@@ -20,7 +20,8 @@ async function getCurrentUser() {
 
 async function signOut() {
   await getSupabase().auth.signOut();
-  window.location.href = '/index.html';
+  const depth = window.location.pathname.includes('/pages/') ? '../index.html' : 'index.html';
+  window.location.href = depth;
 }
 
 async function isAdmin(user) {
