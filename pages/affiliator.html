@@ -202,6 +202,11 @@
           Milestones
         </button>
 
+        <button class="nav-item" id="nav-updates" onclick="showSection('updates')" style="position:relative;">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+          Updates
+          <span id="updatesUnreadDot" style="display:none;position:absolute;top:8px;right:10px;width:7px;height:7px;border-radius:50%;background:var(--gold);"></span>
+        </button>
         <button class="nav-item" id="nav-announcements" onclick="showSection('announcements')">
           <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           Announcements
@@ -365,6 +370,25 @@
         </div>
       </div>
 
+
+      <!-- ═══ SECTION: UPDATES ═══ -->
+      <div id="section-updates" style="display:none;">
+        <div class="page-header">
+          <h1>Updates</h1>
+          <p>Latest template releases and platform updates from EQStudio</p>
+        </div>
+        <div class="page-body">
+          <div class="tab-nav" style="margin-bottom:20px;">
+            <button class="tab-btn active" id="utab-all" onclick="filterUpdates('all')">All</button>
+            <button class="tab-btn" id="utab-template" onclick="filterUpdates('template')">New Templates</button>
+            <button class="tab-btn" id="utab-changelog" onclick="filterUpdates('changelog')">Changelog</button>
+          </div>
+          <div id="affiliatorUpdatesFeed">
+            <div class="empty-state"><div class="loading-spinner"></div></div>
+          </div>
+        </div>
+      </div>
+
       <!-- ═══ SECTION: ANNOUNCEMENTS ═══ -->
       <div id="section-announcements" style="display:none;">
         <div class="page-header">
@@ -435,10 +459,10 @@
 
     // ── Milestone definitions ──
     const MILESTONES = [
-      { id: 'first_sale',    emoji: '🎯', title: 'First Sale',       desc: 'Made your very first sale. Welcome to the team!',                                           threshold: 1  },
+      { id: 'first_sale',    emoji: '🎯', title: 'First Sale',       desc: 'Made your very first sales. Welcome to the team!',                                          threshold: 1  },
       { id: 'rising_star',   emoji: '⭐', title: 'Rising Star',      desc: 'Hit 5 sales. Commission increases to RM12 per sale.',                                       threshold: 5  },
       { id: 'top_performer', emoji: '🔥', title: 'Top Performer',    desc: 'Reached 25 sales. Commission increases to RM15 per sale.',                                  threshold: 25 },
-      { id: 'elite',         emoji: '👑', title: 'Elite Affiliator', desc: 'Achieved 50 sales. Commission increases to RM20 per sale.',                                 threshold: 50 },
+      { id: 'elite',         emoji: '👑', title: 'Elite Affiliator', desc: 'Achieved 50 sales.Commission increases to RM20 per sale.',                                  threshold: 50 },
     ];
 
     // ── Auth guard ──
@@ -473,7 +497,7 @@
 
       if (!data.onboarded) showOnboarding(data);
 
-      await Promise.all([loadStats(), loadCommissions(), loadAnnouncements()]);
+      await Promise.all([loadStats(), loadCommissions(), loadAnnouncements(), loadUpdates()]);
       renderBadges();
 
     }
@@ -725,13 +749,109 @@
       }
     }
 
+
+    // ── Updates ──
+    let myUpdates = [];
+    let updatesFilter = 'all';
+
+    async function loadUpdates() {
+      const sb = getSupabase();
+      const { data, error } = await sb.from('updates')
+        .select('*').order('pinned', { ascending: false }).order('post_date', { ascending: false });
+      if (error) return;
+      myUpdates = data || [];
+
+      // Show unread dot if there are any updates in last 7 days
+      const hasNew = myUpdates.some(u => {
+        const age = Date.now() - new Date(u.post_date).getTime();
+        return age < 7 * 24 * 60 * 60 * 1000;
+      });
+      const dot = document.getElementById('updatesUnreadDot');
+      if (dot) dot.style.display = hasNew ? 'block' : 'none';
+
+      renderAffiliatorUpdates();
+    }
+
+    function filterUpdates(type) {
+      updatesFilter = type;
+      ['all','template','changelog'].forEach(t => {
+        document.getElementById('utab-' + t)?.classList.toggle('active', t === type);
+      });
+      renderAffiliatorUpdates();
+    }
+
+    function renderAffiliatorUpdates() {
+      const feed = document.getElementById('affiliatorUpdatesFeed');
+      if (!feed) return;
+      const list = updatesFilter === 'all' ? myUpdates : myUpdates.filter(u => u.type === updatesFilter);
+
+      if (!list.length) {
+        feed.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg></div><h3>Nothing here yet</h3><p>Check back soon for new templates and updates.</p></div>';
+        return;
+      }
+
+      feed.innerHTML = list.map((u, i) => {
+        const isNew = (Date.now() - new Date(u.post_date).getTime()) < 7 * 24 * 60 * 60 * 1000;
+
+        if (u.type === 'template') {
+          return `
+            <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px;${u.pinned ? 'border-left:3px solid var(--gold);' : ''}transition:border-color var(--transition);">
+              ${u.image_url
+                ? `<img src="${u.image_url}" style="width:100%;height:200px;object-fit:cover;display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="display:none;width:100%;height:140px;background:var(--bg-elevated);align-items:center;justify-content:center;"><span style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;color:var(--gold);">EQStudio</span></div>`
+                : `<div style="width:100%;height:140px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;"><span style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;color:var(--gold);">EQStudio</span></div>`
+              }
+              <div style="padding:20px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+                  ${u.pinned ? '<span class="badge badge-pinned" style="font-size:0.65rem;">📌 Pinned</span>' : ''}
+                  ${isNew ? '<span class="badge" style="background:rgba(201,164,74,0.12);color:var(--gold);border:1px solid rgba(201,164,74,0.2);font-size:0.65rem;">✨ New</span>' : ''}
+                  <span class="badge" style="background:rgba(201,164,74,0.08);color:var(--gold);border:1px solid rgba(201,164,74,0.15);font-size:0.65rem;">🎨 Template</span>
+                </div>
+                <div style="font-size:1rem;font-weight:600;color:var(--text-primary);margin-bottom:8px;">${u.title}</div>
+                ${u.description ? `<div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;margin-bottom:14px;">${u.description}</div>` : ''}
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+                  <span style="font-size:0.75rem;color:var(--text-tertiary);">Released ${formatDate(u.post_date)}</span>
+                  ${u.demo_link ? `<button class="btn btn-gold-outline btn-sm" onclick="copyShareLink('${u.demo_link}', this)">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    Share Demo
+                  </button>` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          return `
+            <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:12px;${u.pinned ? 'border-left:3px solid var(--gold);' : ''}transition:border-color var(--transition);">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+                ${u.pinned ? '<span class="badge badge-pinned" style="font-size:0.65rem;">📌 Pinned</span>' : ''}
+                ${isNew ? '<span class="badge" style="background:rgba(201,164,74,0.12);color:var(--gold);border:1px solid rgba(201,164,74,0.2);font-size:0.65rem;">✨ New</span>' : ''}
+                <span class="badge" style="background:var(--bg-elevated);color:var(--text-secondary);border:1px solid var(--border);font-size:0.65rem;">📝 Changelog</span>
+              </div>
+              <div style="font-size:0.95rem;font-weight:600;color:var(--text-primary);margin-bottom:6px;">${u.title}</div>
+              ${u.description ? `<div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;margin-bottom:10px;">${formatContent(u.description)}</div>` : ''}
+              <div style="font-size:0.75rem;color:var(--text-tertiary);">${formatDate(u.post_date)}</div>
+            </div>
+          `;
+        }
+      }).join('');
+    }
+
+    function copyShareLink(link, btn) {
+      navigator.clipboard.writeText(link).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '✓ Copied!';
+        setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        toast('Demo link copied!', 'success', 2000);
+      });
+    }
+
     // ── Navigation ──
     function showSection(name) {
-      ['dashboard','commissions','badges','announcements','profile'].forEach(s => {
+      ['dashboard','commissions','badges','updates','announcements','profile'].forEach(s => {
         document.getElementById('section-' + s).style.display = s === name ? '' : 'none';
         document.getElementById('nav-' + s)?.classList.toggle('active', s === name);
       });
       if (name === 'profile') loadProfile();
+      if (name === 'updates') { const d = document.getElementById('updatesUnreadDot'); if(d) d.style.display='none'; }
       document.querySelector('.sidebar')?.classList.remove('open');
       document.querySelector('.sidebar-overlay')?.classList.remove('open');
     }
