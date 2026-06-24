@@ -106,7 +106,52 @@
     .progress-msg span { color: var(--gold); font-weight: 600; }
 
 
+    .mkt-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .mkt-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color var(--transition), transform var(--transition);
+    }
+    .mkt-card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+    .mkt-thumb {
+      width: 100%; height: 140px;
+      object-fit: cover; display: block;
+      background: var(--bg-elevated);
+    }
+    .mkt-thumb-placeholder {
+      width: 100%; height: 140px;
+      background: var(--bg-elevated);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mkt-card-body { padding: 14px 16px; }
+    .mkt-card-title {
+      font-size: 0.85rem; font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .mkt-card-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+    .mkt-tag {
+      font-size: 0.62rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      padding: 2px 7px; border-radius: 99px;
+      background: var(--gold-dim); color: var(--gold);
+      border: 1px solid rgba(201,164,74,0.18);
+    }
+
     @media (max-width: 768px) {
+      .mkt-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .mkt-thumb, .mkt-thumb-placeholder { height: 100px; }
       .badges-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
       .badge-card { padding: 14px; gap: 10px; }
       .badge-icon { font-size: 1.4rem; }
@@ -169,6 +214,19 @@
     </div>
   </div>
 
+  <!-- ═══ MODAL: View Marketing Strategy ═══ -->
+  <div class="modal-overlay" id="marketingViewModal">
+    <div class="modal" style="max-width:640px;">
+      <div class="modal-header">
+        <span class="modal-title" id="mktViewTitle">Strategy</span>
+        <button class="modal-close" onclick="closeModal('marketingViewModal')">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="mktViewBody"></div>
+    </div>
+  </div>
+
   <!-- Mobile top bar -->
   <div class="topbar">
     <span class="wordmark">EQStudio</span>
@@ -202,6 +260,10 @@
           Milestones
         </button>
 
+        <button class="nav-item" id="nav-marketing" onclick="showSection('marketing')">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+          Marketing Strategy
+        </button>
         <button class="nav-item" id="nav-updates" onclick="showSection('updates')" style="position:relative;">
           <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
           Updates
@@ -371,6 +433,20 @@
       </div>
 
 
+
+      <!-- ═══ SECTION: MARKETING STRATEGY ═══ -->
+      <div id="section-marketing" style="display:none;">
+        <div class="page-header">
+          <h1>Marketing Strategy</h1>
+          <p>Ready-made copywriting, links, images, and videos to help you promote</p>
+        </div>
+        <div class="page-body">
+          <div class="mkt-grid" id="affMarketingGrid">
+            <div class="empty-state"><div class="loading-spinner"></div></div>
+          </div>
+        </div>
+      </div>
+
       <!-- ═══ SECTION: UPDATES ═══ -->
       <div id="section-updates" style="display:none;">
         <div class="page-header">
@@ -459,10 +535,10 @@
 
     // ── Milestone definitions ──
     const MILESTONES = [
-      { id: 'first_sale',    emoji: '🎯', title: 'First Sale',       desc: 'Made your very first sales. Welcome to the team!',                                          threshold: 1  },
-      { id: 'rising_star',   emoji: '⭐', title: 'Rising Star',      desc: 'Hit 5 sales. Commission increases to RM12 per sale.',                                       threshold: 5  },
-      { id: 'top_performer', emoji: '🔥', title: 'Top Performer',    desc: 'Reached 25 sales. Commission increases to RM15 per sale.',                                  threshold: 25 },
-      { id: 'elite',         emoji: '👑', title: 'Elite Affiliator', desc: 'Achieved 50 sales.Commission increases to RM20 per sale.',                                  threshold: 50 },
+      { id: 'first_sale',    emoji: '🎯', title: 'First Sale',       desc: 'Made your very first referral. Welcome to the team!',                                           threshold: 1  },
+      { id: 'rising_star',   emoji: '⭐', title: 'Rising Star',      desc: 'Hit 5 referrals. Commission increases to RM12 per sale.',                                       threshold: 5  },
+      { id: 'top_performer', emoji: '🔥', title: 'Top Performer',    desc: 'Reached 25 referrals. Commission increases to RM15 per sale.',                                  threshold: 25 },
+      { id: 'elite',         emoji: '👑', title: 'Elite Affiliator', desc: 'Achieved 25 referrals. Commission kekal RM15 per sale + priority support dari team EQStudio.', threshold: 25 },
     ];
 
     // ── Auth guard ──
@@ -497,7 +573,7 @@
 
       if (!data.onboarded) showOnboarding(data);
 
-      await Promise.all([loadStats(), loadCommissions(), loadAnnouncements(), loadUpdates()]);
+      await Promise.all([loadStats(), loadCommissions(), loadAnnouncements(), loadUpdates(), loadMarketing()]);
       renderBadges();
 
     }
@@ -750,6 +826,95 @@
     }
 
 
+
+    // ── Marketing Strategy ──
+    let myMarketing = [];
+
+    async function loadMarketing() {
+      const sb = getSupabase();
+      const { data, error } = await sb.from('marketing_strategies')
+        .select('*').order('created_at', { ascending: false });
+      if (error) return;
+      myMarketing = data || [];
+      renderMarketingGrid();
+    }
+
+    function renderMarketingGrid() {
+      const grid = document.getElementById('affMarketingGrid');
+      if (!grid) return;
+      if (!myMarketing.length) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 11l18-5v12L3 14v-3z"/></svg></div><h3>Nothing here yet</h3><p>Check back soon for marketing materials from the team.</p></div>';
+        return;
+      }
+      grid.innerHTML = myMarketing.map(m => `
+        <div class="mkt-card" onclick="viewMarketingStrategy('${m.id}')">
+          ${m.thumbnail_url
+            ? `<img src="${m.thumbnail_url}" class="mkt-thumb" onerror="this.outerHTML='<div class=&quot;mkt-thumb-placeholder&quot;><span style=&quot;font-family:var(--font-display);font-weight:800;color:var(--gold);&quot;>EQStudio</span></div>'">`
+            : `<div class="mkt-thumb-placeholder"><span style="font-family:var(--font-display);font-weight:800;color:var(--gold);">EQStudio</span></div>`
+          }
+          <div class="mkt-card-body">
+            <div class="mkt-card-title">${m.title}</div>
+            <div class="mkt-card-meta">
+              ${m.copywriting ? '<span class="mkt-tag">Copy</span>' : ''}
+              ${m.link_url ? '<span class="mkt-tag">Link</span>' : ''}
+              ${m.image_url ? '<span class="mkt-tag">Image</span>' : ''}
+              ${m.video_url ? '<span class="mkt-tag">Video</span>' : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toEmbedUrl(url) {
+      let m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+      if (m) return `https://www.youtube.com/embed/${m[1]}`;
+      m = url.match(/vimeo\.com\/(\d+)/);
+      if (m) return `https://player.vimeo.com/video/${m[1]}`;
+      return url;
+    }
+
+    function viewMarketingStrategy(id) {
+      const m = myMarketing.find(x => x.id === id);
+      if (!m) return;
+      document.getElementById('mktViewTitle').textContent = m.title;
+
+      let videoHtml = '';
+      if (m.video_url && m.video_type === 'embed') {
+        const embedUrl = toEmbedUrl(m.video_url);
+        videoHtml = `<div style="position:relative;padding-bottom:56.25%;height:0;border-radius:var(--radius-md);overflow:hidden;margin-bottom:16px;"><iframe src="${embedUrl}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
+      } else if (m.video_url && m.video_type === 'file') {
+        videoHtml = `<video src="${m.video_url}" controls style="width:100%;border-radius:var(--radius-md);margin-bottom:16px;max-height:360px;background:#000;"></video>`;
+      }
+
+      document.getElementById('mktViewBody').innerHTML = `
+        ${videoHtml}
+        ${m.image_url ? `<img src="${m.image_url}" style="width:100%;border-radius:var(--radius-md);margin-bottom:16px;max-height:320px;object-fit:cover;">` : ''}
+        ${m.copywriting ? `
+          <div style="position:relative;margin-bottom:16px;">
+            <div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;white-space:pre-wrap;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;padding-right:80px;">${m.copywriting}</div>
+            <button class="btn btn-gold-outline btn-sm" onclick="copyMktCopy('${m.id}')" id="mktCopyBtn-${m.id}" style="position:absolute;top:10px;right:10px;">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+        ` : ''}
+        ${m.link_url ? `<a href="${m.link_url}" target="_blank" rel="noopener" class="btn btn-gold-outline" style="width:100%;margin-bottom:8px;"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Open Link</a>` : ''}
+      `;
+      openModal('marketingViewModal');
+    }
+
+    function copyMktCopy(id) {
+      const m = myMarketing.find(x => x.id === id);
+      if (!m) return;
+      navigator.clipboard.writeText(m.copywriting).then(() => {
+        const btn = document.getElementById('mktCopyBtn-' + id);
+        const orig = btn.innerHTML;
+        btn.innerHTML = '✓';
+        setTimeout(() => { btn.innerHTML = orig; }, 1800);
+        toast('Copywriting copied!', 'success', 2000);
+      });
+    }
+
     // ── Updates ──
     let myUpdates = [];
     let updatesFilter = 'all';
@@ -846,7 +1011,7 @@
 
     // ── Navigation ──
     function showSection(name) {
-      ['dashboard','commissions','badges','updates','announcements','profile'].forEach(s => {
+      ['dashboard','commissions','badges','marketing','updates','announcements','profile'].forEach(s => {
         document.getElementById('section-' + s).style.display = s === name ? '' : 'none';
         document.getElementById('nav-' + s)?.classList.toggle('active', s === name);
       });
